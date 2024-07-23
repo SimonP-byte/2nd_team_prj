@@ -11,6 +11,7 @@ char rx_buf[20];
 char tx_buf[20];
 unsigned char rxd;
 char rx_flag = 0;
+int i = 0;
 
 void serialEvent(){
   rxd = Serial.read();
@@ -25,15 +26,21 @@ void setup() {
   digitalWrite(RS485_EN, 0); // 485 기본상태 = 수신
 
   // 소프트웨어, 하드웨어 Serial 통신 시작
-  RS485.begin(115200);  // Software UART
+  RS485.begin(9600);  // Software UART
   Serial.begin(115200); // Hardware UART
 }
 
 void loop() {
-  
-  if(RS485.available()){
-    char rxd = RS485.read();
-    Serial.print(rxd);
-  }
 
+  // 시리얼통신 수신
+  while(RS485.available()){
+    rx_buf[i] = RS485.read();
+    if(rx_buf[i] == '\n') {
+      i = 0;
+      Serial.print(rx_buf);
+      break;
+    }
+    i++;
+  }
+  delay(400);
 }
