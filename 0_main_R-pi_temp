@@ -18,35 +18,9 @@ port = "/dev/ttyACM0"
 baud = 115200
 cnt = 1234
 
-# ser_1 = serial.Serial("/dev/ttyACM0", 115200)
 ser = serial.Serial("/dev/ttyAMA3", 9600)
-# ser = serial.Serial("/dev/ttyACM0", 115200, timeout=3)
-# ser = serial.Serial(
-#             port = "/dev/ttyAMA3",
-#             baudrate = 9600,
-#             parity = serial.PARITY_NONE,
-#             stopbits = serial.STOPBITS_ONE,
-#             bytesize = serial.EIGHTBITS,
-#             timeout = 0
-#             )
-# ser = serial.Serial(
-#             port = "/dev/ttyACM0",
-#             baudrate = 115200,
-#             parity = serial.PARITY_NONE,
-#             stopbits = serial.STOPBITS_ONE,
-#             bytesize = serial.EIGHTBITS,
-#             timeout = 1, #None
-#             xonxoff = False,
-#             rtscts = False,
-#             write_timeout = None,
-#             dsrdtr = False,
-#             inter_byte_timeout = None,
-#             execlusive = None
-#             )
 ser.close()
 ser.open()
-
-
 
 alivethread = True
 
