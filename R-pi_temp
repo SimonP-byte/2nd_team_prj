@@ -1,0 +1,108 @@
+
+#### sys lib ####
+import time as tm
+import threading as thrd
+import serial
+
+#### prj lib ####
+import RPi.GPIO as gpio
+
+#### my lib ####
+from package import Rpi_FND_Lib_V1_0 as seg7
+from package import My_Rpi_GPIO_Lib_V1_0 as io_lib
+from package import My_RPi_I2C_LCD_Lib_V1_0 as lcd_lib
+from package.My_STD_Lib_V1_0 import *
+
+line = ''
+port = "/dev/ttyACM0"
+baud = 115200
+cnt = 1234
+
+# ser_1 = serial.Serial("/dev/ttyACM0", 115200)
+ser = serial.Serial("/dev/ttyAMA3", 115200)
+# ser = serial.Serial("/dev/ttyACM0", 115200, timeout=3)
+# ser = serial.Serial(
+#             port = "/dev/ttyAMA3",
+#             baudrate = 9600,
+#             parity = serial.PARITY_NONE,
+#             stopbits = serial.STOPBITS_ONE,
+#             bytesize = serial.EIGHTBITS,
+#             timeout = 0
+#             )
+# ser = serial.Serial(
+#             port = "/dev/ttyACM0",
+#             baudrate = 115200,
+#             parity = serial.PARITY_NONE,
+#             stopbits = serial.STOPBITS_ONE,
+#             bytesize = serial.EIGHTBITS,
+#             timeout = 1, #None
+#             xonxoff = False,
+#             rtscts = False,
+#             write_timeout = None,
+#             dsrdtr = False,
+#             inter_byte_timeout = None,
+#             execlusive = None
+#             )
+ser.close()
+ser.open()
+
+
+
+alivethread = True
+
+def timer_thrd():
+    print("thrd func...")
+    
+    if ser_2.readable():
+        response = ser_2.readline()
+        print(response)
+    
+    thread_1 = thrd.Timer(0.2, timer_thrd)
+    thread_1.start()
+
+
+def setup():
+    gpio.setwarnings(False)
+    gpio.setmode(gpio.BCM)
+    gpio.cleanup()
+    
+       
+#     for i in io_lib.LED_Pin:
+#         gpio.setup(i, gpio.OUT)
+#     for k in seg7.FND_Pin:
+#         gpio.setup(k, gpio.OUT)
+    
+    gpio.setup(17, gpio.OUT)
+    io_lib._d_out_(17, 1)
+    
+#     thread_1 = thrd.Timer(0.2, timer_thrd)
+#     thread_1.start()
+
+def main():
+    setup()
+    try:
+        while True:
+            
+            tm.sleep(0.5)
+
+            ser.write("1234\n".encode())
+            print("1234\n")
+            
+            
+#             tm.sleep(0.5)
+#             io_lib._d_out_(17, 0)
+#             if ser.readable():
+#                 response = ser.readline()
+#                 print(response)
+            
+    except KeyboardInterrupt:
+        print("Ctrl + c KeyboardInterrupt")        
+    finally:
+        pass
+        
+#===============================================================
+
+# Program Strat main
+if __name__ == "__main__":
+    main()
+
