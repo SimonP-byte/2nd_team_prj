@@ -13,12 +13,16 @@ from package import My_Rpi_GPIO_Lib_V1_0 as io_lib
 from package import My_RPi_I2C_LCD_Lib_V1_0 as lcd_lib
 from package.My_STD_Lib_V1_0 import *
 
+
 port = "/dev/ttyAMA3"
-baud = 115200
-ser = serial.Serial("/dev/ttyAMA3", 9600)
+baud = 9600
+ser = serial.Serial(port, baud)
 
 ser.close()
 ser.open()
+
+cnt = 1234
+flag = 0
 
 def timer_thrd():
     print("thrd func...")
@@ -30,6 +34,11 @@ def timer_thrd():
     thread_1 = thrd.Timer(0.2, timer_thrd)
     thread_1.start()
 
+def byte_send(k, g):
+    ser.write(bytes(bytearray([0xCF])))
+    ser.write(bytes(bytearray([k])))
+    ser.write(bytes(bytearray([g])))
+              
 
 def setup():
     gpio.setwarnings(False)
@@ -52,18 +61,32 @@ def main():
     setup()
     try:
         while True:
+            global flag
+            value = [12, 0, 1, str('K'), 2, str("Park"), 3, 57, 124, 54, str('\n')]
+#             ser.write(b"SRpi_TX\n")
+#             ser.write("Rpi_\n".encode())
+#             ser.write(bytes("Rpi_\n".encode('ascii')))
+            if flag == 0:
+                io_lib._d_out_(17, 1)
+                ser.write(b"S00100\n")
+                tm.sleep(0.01)
+                io_lib._d_out_(17, 0)
             
-            io_lib._d_out_(17, 1)
-            ser.write(b"S1234\n")
-            tm.sleep(0.01)
-            io_lib._d_out_(17, 0)
-            
-            tm.sleep(0.3)
+                tm.sleep(0.3)
             
             if ser.readable():
                 response = ser.readline()
                 print(response)
-                
+                print(response[4])
+                print(response[5])
+                if response[4] == 48:
+                    if response[5] == 49:
+                        flag = 1
+                        io_lib._d_out_(17, 1)
+                        ser.write(b"S00101\n")
+                        tm.sleep(0.01)
+                        io_lib._d_out_(17, 0)
+               
             tm.sleep(0.3)
             
             
