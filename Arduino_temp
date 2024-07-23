@@ -1,0 +1,35 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial Rpi(7, 8);
+char buf[20];
+int cnt = 1234;
+char tx_buf[10];
+
+void setup() {
+  Serial.begin(115200);
+  Rpi.begin(115200);
+  pinMode(2, OUTPUT);
+  digitalWrite(2, 0);
+}
+
+void loop() {
+
+  if(Rpi.available()){
+    for(int i = 0; i < 5; i++){
+      buf[i] = Rpi.read();
+    }
+    Serial.print(buf);
+  }
+  delay(100);
+
+
+  // cnt++;
+  // sprintf(tx_buf, "%d", cnt);
+  // Rpi.write(tx_buf);
+  // Rpi.write(" test\r\n");
+  
+  // digitalWrite(13, 0);
+  // delay(100);
+  // digitalWrite(13, 1);
+  // delay(100);
+}
