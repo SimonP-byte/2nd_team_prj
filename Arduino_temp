@@ -42,10 +42,11 @@ void loop() {
     }
     i++;
   }
-  delay(20);
+  delay(500);
 
-  // Rx - Tx 섞을경우 데이터가 깨짐 -> flag 및 함수로 빼내서 구동할 것
+
   digitalWrite(RS485_EN, 1);
   RS485.write(tx_buf);
   digitalWrite(RS485_EN, 0);
+  delay(500);
 }
