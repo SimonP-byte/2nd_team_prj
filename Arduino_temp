@@ -1,35 +1,39 @@
+
 #include <SoftwareSerial.h>
 
-SoftwareSerial Rpi(7, 8);
-char buf[20];
-int cnt = 1234;
-char tx_buf[10];
+#define Tx_pin 8
+#define Rx_pin 7
+#define RS485_EN 2
+
+SoftwareSerial RS485(Rx_pin, Tx_pin);
+
+char rx_buf[20];
+char tx_buf[20];
+unsigned char rxd;
+char rx_flag = 0;
+
+void serialEvent(){
+  rxd = Serial.read();
+  rx_flag = 1;
+}
 
 void setup() {
-  Serial.begin(115200);
-  Rpi.begin(115200);
-  pinMode(2, OUTPUT);
-  digitalWrite(2, 0);
+  // 송-수신, 485 Enable 핀 초기화 
+  pinMode(Rx_pin, INPUT);
+  pinMode(Tx_pin, OUTPUT);
+  pinMode(RS485_EN, OUTPUT);
+  digitalWrite(RS485_EN, 0); // 485 기본상태 = 수신
+
+  // 소프트웨어, 하드웨어 Serial 통신 시작
+  RS485.begin(115200);  // Software UART
+  Serial.begin(115200); // Hardware UART
 }
 
 void loop() {
-
-  if(Rpi.available()){
-    for(int i = 0; i < 5; i++){
-      buf[i] = Rpi.read();
-    }
-    Serial.print(buf);
-  }
-  delay(100);
-
-
-  // cnt++;
-  // sprintf(tx_buf, "%d", cnt);
-  // Rpi.write(tx_buf);
-  // Rpi.write(" test\r\n");
   
-  // digitalWrite(13, 0);
-  // delay(100);
-  // digitalWrite(13, 1);
-  // delay(100);
+  if(RS485.available()){
+    char rxd = RS485.read();
+    Serial.print(rxd);
+  }
+
 }
