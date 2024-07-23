@@ -13,16 +13,12 @@ from package import My_Rpi_GPIO_Lib_V1_0 as io_lib
 from package import My_RPi_I2C_LCD_Lib_V1_0 as lcd_lib
 from package.My_STD_Lib_V1_0 import *
 
-line = ''
-port = "/dev/ttyACM0"
+port = "/dev/ttyAMA3"
 baud = 115200
-cnt = 1234
-
 ser = serial.Serial("/dev/ttyAMA3", 9600)
+
 ser.close()
 ser.open()
-
-alivethread = True
 
 def timer_thrd():
     print("thrd func...")
