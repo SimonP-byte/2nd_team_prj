@@ -31,8 +31,8 @@ void setup() {
 }
 
 void loop() {
-
-  // 시리얼통신 수신
+  
+  
   while(RS485.available()){
     rx_buf[i] = RS485.read();
     if(rx_buf[i] == '\n') {
@@ -42,5 +42,5 @@ void loop() {
     }
     i++;
   }
-  delay(400);
+  delay(20);
 }
