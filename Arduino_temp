@@ -8,7 +8,7 @@
 SoftwareSerial RS485(Rx_pin, Tx_pin);
 
 char rx_buf[20];
-char tx_buf[20];
+char tx_buf[20] = "Arduino_TX\n";
 unsigned char rxd;
 char rx_flag = 0;
 int i = 0;
@@ -43,4 +43,9 @@ void loop() {
     i++;
   }
   delay(20);
+
+  // Rx - Tx 섞을경우 데이터가 깨짐 -> flag 및 함수로 빼내서 구동할 것
+  digitalWrite(RS485_EN, 1);
+  RS485.write(tx_buf);
+  digitalWrite(RS485_EN, 0);
 }
