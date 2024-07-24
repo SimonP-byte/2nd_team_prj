@@ -13,12 +13,20 @@ from package import My_Rpi_GPIO_Lib_V1_0 as io_lib
 from package import My_RPi_I2C_LCD_Lib_V1_0 as lcd_lib
 from package.My_STD_Lib_V1_0 import *
 
+
 port = "/dev/ttyAMA3"
-baud = 115200
-ser = serial.Serial("/dev/ttyAMA3", 9600)
+baud = 9600
+ser = serial.Serial("/dev/ttyAMA3", 9600, timeout = 0.1)
 
 ser.close()
 ser.open()
+
+cnt = 1234
+rx_flag = 0
+alarm_flag = 0
+
+NOA = 0 # Number of arduino
+
 
 def timer_thrd():
     print("thrd func...")
@@ -29,7 +37,7 @@ def timer_thrd():
     
     thread_1 = thrd.Timer(0.2, timer_thrd)
     thread_1.start()
-
+              
 
 def setup():
     gpio.setwarnings(False)
@@ -44,6 +52,8 @@ def setup():
     
     gpio.setup(17, gpio.OUT)
     io_lib._d_out_(17, 0)
+    gpio.setup(21, gpio.IN, pull_up_down=gpio.PUD_UP)
+    
     
 #     thread_1 = thrd.Timer(0.2, timer_thrd)
 #     thread_1.start()
@@ -52,20 +62,60 @@ def main():
     setup()
     try:
         while True:
+            global rx_flag
+            global NOA
+            global AN, error
+            global alarm_flag
             
-            io_lib._d_out_(17, 1)
-            ser.write(b"S1234\n")
-            tm.sleep(0.01)
-            io_lib._d_out_(17, 0)
+            if io_lib._d_in_(21) == 0:
+                alarm_flag = 0
             
-            tm.sleep(0.3)
-            
-            if ser.readable():
-                response = ser.readline()
-                print(response)
+            if rx_flag == 0:
+                io_lib._d_out_(17, 1)
+                
+                if NOA == 0:
+                    if alarm_flag == 0:
+                        ser.write(b"S00100\n")
+                        print("sent = S00100")
+                    elif alarm_flag == 1:
+                        ser.write(b"S00101\n")
+                        print("sent = S00101")
+                        
+                elif NOA == 1:
+                    if alarm_flag == 0:
+                        ser.write(b"S00200\n")
+                        print("sent = S00200")
+                    elif alarm_flag == 1:
+                        ser.write(b"S00201\n")
+                        print("sent = S00201")
+                
+                NOA += 1
+                if NOA > 1:
+                    NOA = 0
+                    
+                tm.sleep(0.01)
+                io_lib._d_out_(17, 0)
+                rx_flag = 1
                 
             tm.sleep(0.3)
             
+            if rx_flag == 1 & ser.readable():
+                rx_buf = ser.readline()
+                print(rx_buf)
+                if len(rx_buf) >= 6:
+                    if rx_buf[4] == 48:	# 48 == '0'
+                        if rx_buf[5] == 48: # 48 == '0'
+                            rx_flag = 0
+                            alarm_flag = 0
+                        elif rx_buf[5] == 49: # 49 == '1'
+                            rx_flag = 0
+                            alarm_flag = 1
+                        print("alarm_flag = ", end='')
+                        print(alarm_flag)
+                else :	
+                    rx_flag = 0
+                    
+            tm.sleep(0.3)
             
     except KeyboardInterrupt:
         print("Ctrl + c KeyboardInterrupt")        
@@ -77,4 +127,3 @@ def main():
 # Program Strat main
 if __name__ == "__main__":
     main()
-
