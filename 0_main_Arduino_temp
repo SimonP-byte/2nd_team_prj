@@ -1,52 +1,99 @@
+//system
 
-#include <SoftwareSerial.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
-#define Tx_pin 8
-#define Rx_pin 7
-#define RS485_EN 2
+// My LIB
+#include "My_Arduino_GPIO_Lib_V1_6.h"
 
-SoftwareSerial RS485(Rx_pin, Tx_pin);
+#define BZ 7 // 부저 핀7번
+#define flame 8 // 불꽃감지 센서 핀8번
+#define MQ A0
 
-char rx_buf[20];
-char tx_buf[20] = "Arduino_TX\n";
-unsigned char rxd;
-char rx_flag = 0;
-int i = 0;
+// 3color LED
+#define LED_R 3
+#define LED_G  5
+#define LED_B  6
 
-void serialEvent(){
-  rxd = Serial.read();
-  rx_flag = 1;
-}
+int ALM_1 = 0;   // 불꽃감지 알림
+int ALM_2 = 0;   // 가스감지 알림 
 
-void setup() {
-  // 송-수신, 485 Enable 핀 초기화 
-  pinMode(Rx_pin, INPUT);
-  pinMode(Tx_pin, OUTPUT);
-  pinMode(RS485_EN, OUTPUT);
-  digitalWrite(RS485_EN, 0); // 485 기본상태 = 수신
+int state = 0; //
+int mq_value = 0;
 
-  // 소프트웨어, 하드웨어 Serial 통신 시작
-  RS485.begin(9600);  // Software UART
-  Serial.begin(115200); // Hardware UART
-}
-
-void loop() {
-  
-  
-  while(RS485.available()){
-    rx_buf[i] = RS485.read();
-    if(rx_buf[i] == '\n') {
-      i = 0;
-      Serial.print(rx_buf);
-      break;
-    }
-    i++;
+//=========================== 불꽃감지 센서
+void FIR(){
+  state = digitalRead(flame);     // 불꽃감지센서값 입력받음
+  if(state == 0){                 // 불꽃감지센서가 0일 때 
+    Serial.println("ON");        // 시리얼 통신에 센서값 출력
+    //delay(1000);
+   }
+else{                             // 불꽃감지센서가 1일 떄
+  Serial.println("OFF");          // 시리얼 통신에 센서값 출력
+  //delay(1000);
   }
-  delay(500);
-
-
-  digitalWrite(RS485_EN, 1);
-  RS485.write(tx_buf);
-  digitalWrite(RS485_EN, 0);
-  delay(500);
 }
+//================== gas 감지센서
+
+void GAS(){
+mq_value=analogRead(MQ);
+Serial.println(mq_value);
+//delay(1000);
+}
+//=========================== 부저 
+
+
+ void sound_func(){
+ if(state==1){
+  digitalWrite(7,1); 
+  }
+else{
+    digitalWrite(7,0); 
+  }
+}
+//================== RGB 3color
+void set_color(int r, int g, int b)
+{
+  analogWrite(LED_R, r);  // PWM 출력 나가는것 값이 클수록 펄스 폭이 길어진다  
+  analogWrite(LED_G, g);
+  analogWrite(LED_B, b);
+}
+//=================== color 0일때 RED , 1일떄 GREEN
+void color(){
+  if(mq_value>450){
+    d_out(LED_R,255);
+    d_out(LED_G,0);
+    ALM_2 = 1;
+  }
+  else{
+    d_out(LED_R,0);
+    d_out(LED_G,255);
+    ALM_2 = 0;
+  }
+}
+//================
+void setup() {
+pinMode(flame, INPUT_PULLUP);            // 불꽃감지센서를 입력으로
+pinMode(BZ,OUTPUT);               // 부저를 출력으로
+pinMode(MQ,INPUT);
+Serial.begin(9600);
+}
+
+
+
+
+
+
+//================
+void loop() {
+FIR();
+sound_func();
+color();
+GAS();
+}
+
+
+
+
+
